@@ -16,10 +16,7 @@ import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
-import android.view.Gravity
-import android.view.MotionEvent
-import android.view.View
-import android.view.WindowManager
+import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemClickListener
@@ -83,7 +80,7 @@ class MainActivity : AppCompatActivity(), NlpListener, OnRobotReadyListener,
     OnMovementVelocityChangedListener, OnMovementStatusChangedListener,
     OnContinuousFaceRecognizedListener, ITtsService, OnGreetModeStateChangedListener,
     TextToSpeech.OnInitListener, OnLoadFloorStatusChangedListener,
-    OnDistanceToDestinationChangedListener, OnSdkExceptionListener {
+    OnDistanceToDestinationChangedListener, OnSdkExceptionListener{
 
     private var state: String = "default"
 
@@ -262,6 +259,28 @@ class MainActivity : AppCompatActivity(), NlpListener, OnRobotReadyListener,
             unregisterReceiver(debugReceiver)
         }
         super.onDestroy()
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        return when (keyCode) {
+            KeyEvent.KEYCODE_W -> {
+                robot.skidJoy(0.2f,0f, false)
+                tvLog.append("W is pressed.\n")
+                true
+            }
+            KeyEvent.KEYCODE_A -> {
+                true
+            }
+            KeyEvent.KEYCODE_S -> {
+                robot.skidJoy(-0.2f,0f, false)
+                tvLog.append("S is pressed.\n")
+                true
+            }
+            KeyEvent.KEYCODE_D -> {
+                true
+            }
+            else -> super.onKeyDown(keyCode, event)
+        }
     }
 
     private fun initOnClickListener() {
@@ -771,7 +790,7 @@ class MainActivity : AppCompatActivity(), NlpListener, OnRobotReadyListener,
      * skidJoy moves the robot exactly forward for about a second. It controls both
      * the linear and angular velocity. Float numbers must be between -1.0 and 1.0
      */
-    private fun skidJoy() {
+    private fun skidJoy(d: Double, d1: Double) {
         val t = System.currentTimeMillis()
         val end = t + 500
         val speedX = try {
